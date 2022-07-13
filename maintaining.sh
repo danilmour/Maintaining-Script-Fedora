@@ -32,6 +32,16 @@ installApps() {
 	echo -e "${NEGRITO}2: Flatpak${RESET}"
 	read PACKAGE_MANAGER
 
+	if [ $PACKAGE_MANAGER == 1 ]
+	then
+		PM_NAME="DNF"
+	fi
+
+	if [ $PACKAGE_MANAGER == 2 ]
+	then
+		PM_NAME="Flatpak"
+	fi
+
 	echo -e "${NEGRITO}Quais aplicações quer instalar?${RESET}"
 	read APPS
 
@@ -39,7 +49,7 @@ installApps() {
 	then
 	    echo -e "${VERMELHO}Sem apps para instalar${RESET}"
 	else
-		echo -e "${NEGRITO}A instalar aplicações com o ${PACKAGE_MANAGER}${RESET}"
+		echo -e "${NEGRITO}A instalar aplicações com o ${PM_NAME}${RESET}"
 
 		case $PACKAGE_MANAGER in
 			1)
