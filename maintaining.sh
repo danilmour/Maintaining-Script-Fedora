@@ -11,6 +11,7 @@ update() {
 	echo -e "${NEGRITO}O $DISTRO vai procurar agora por atualizações${RESET}"
 	sleep 2
 	sudo dnf update
+	sudo flatpak update
 	echo -e "\e[${VERDE}O $DISTRO terminou as atualizações${RESET}"
 	sleep 2
 }
@@ -20,11 +21,17 @@ clean() {
 	sleep 2
 	sudo dnf autoremove
 	sudo dnf clean all
+	sudo flatpak uninstall --unused
 	echo -e "${VERDE}Sistema Limpo${RESET}"
 	sleep 2
 }
 
 installApps() {
+	echo -e "${NEGRITO}Qual dos seguintes gestores pretende utilizar?${RESET}"
+	echo -e "${NEGRITO}1: DNF${RESET}"
+	echo -e "${NEGRITO}2: Flatpak${RESET}"
+	read PACKAGE_MANAGER
+
 	echo -e "${NEGRITO}Quais aplicações quer instalar?${RESET}"
 	read APPS
 
@@ -32,10 +39,32 @@ installApps() {
 	then
 	    echo -e "${VERMELHO}Sem apps para instalar${RESET}"
 	else
-	    sudo dnf install $APPS
+		echo -e "${NEGRITO}A instalar aplicações com o ${PACKAGE_MANAGER}${RESET}"
+
+		case $PACKAGE_MANAGER in
+			1)
+			    sudo dnf install $APPS
+				;;
+
+			2)
+				sudo flatpak install $APPS
+				;;
+
+			*)
+				echo -e "${VERMELHO}Opção Inválida! A terminar.${RESET}"
+				sleep 2
+				exit
+				;;
+		esac
+
 	    echo -e "${VERDE}Aplicações Instaladas${RESET}"
 	fi
 	
+	sleep 2
+}
+
+info() {
+	cat /etc/os-release
 	sleep 2
 }
 
@@ -44,6 +73,7 @@ menu() {
 	echo -e "${NEGRITO}1: Atualizar Sistema${RESET}"
 	echo -e "${NEGRITO}2: Limpar Sistema${RESET}"
 	echo -e "${NEGRITO}3: Instalar Aplicações${RESET}"
+	echo -e "${NEGRITO}4: Informações do Sistema${RESET}"
 	
 	read ESCOLHA
 
@@ -58,6 +88,10 @@ menu() {
 
 		3)
 			installApps
+			;;
+
+		4)
+			info
 			;;
 
 		*)
