@@ -18,6 +18,13 @@ update() {
 
 	sudo flatpak update
 
+	for (( i = 0; i < 100; i += 50 )); do
+		echo $i
+		sleep 1
+	done | whiptail --title "Atualização do Sistema" --gauge "O $DISTRO vai procurar agora por atualizações de pacotes Snap" 10 70 0
+
+	sudo snap refresh
+
 	whiptail --title "Atualização do Sistema" --msgbox "O $DISTRO terminou as atualizações" 10 70
 }
 
@@ -68,12 +75,24 @@ info() {
 	cat /etc/os-release
 }
 
+turnOff() {
+	if (whiptail --title "Desligar o Sistema" --yesno "Tem a certeza que pretende Desligar o Sistema?" 10 70); then
+		for (( i = 0; i < 100; i += 97 )); do
+			echo $i
+			sleep 2
+		done | whiptail --title "Desligar o Sistema" --gauge "O Sistema vai Desligar" 10 70 0
+
+		sudo poweroff
+	fi
+}
+
 menu() {
-	CHOICE=$(whiptail --title "Menu Principal" --menu "Escolha uma opção" 20 35 0 \
+	CHOICE=$(whiptail --title "Menu Principal" --menu "Escolha uma opção" 20 70 0 \
 			"Atualizar o Sistema" "" \
 			"Limpar o Sistema" "" \
 			"Instalar Aplicações" "" \
 			"Informações do Sistema" "" \
+			"Desligar o Sistema" "" \
 			3>&1 1>&2 2>&3)
 
 	case $CHOICE in
@@ -92,7 +111,16 @@ menu() {
 		"Informações do Sistema")
 			info
 			;;
+
+		"Desligar o Sistema")
+			turnOff
+			;;
 	esac
 }
+
+if [[ $(whoami) != root ]]; then
+	echo "O programa tem de ser executado com o utilizador root!"
+	exit
+fi
 
 menu
