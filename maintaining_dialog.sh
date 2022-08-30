@@ -1,5 +1,12 @@
 #!/bin/bash
 
+#-------------+--------------------------------------------#
+# Script Name | maintaining_dialog.sh				       #
+#-------------+--------------------------------------------#
+# Purpose     | This script runs a set of commands related #
+#			  | to package managing and system information #
+#-------------+--------------------------------------------#
+
 # Debug Mode
 # set -x
 
@@ -13,19 +20,23 @@ update() {
 
 	sudo dnf update
 
-	for ((i = 0; i < 100; i += 50)); do
-		echo "${i}"
-		sleep 1
-	done | whiptail --title "Atualização do Sistema" --gauge "O $DISTRO vai procurar agora por atualizações de pacotes Flatpak" 10 70 0
+	if [ "$(command -v flatpak)" ]; then
+		for ((i = 0; i < 100; i += 50)); do
+			echo "${i}"
+			sleep 1
+		done | whiptail --title "Atualização do Sistema" --gauge "O $DISTRO vai procurar agora por atualizações de pacotes Flatpak" 10 70 0
 
-	sudo flatpak update
+		sudo flatpak update
+	fi
 
-	for ((i = 0; i < 100; i += 50)); do
-		echo "${i}"
-		sleep 1
-	done | whiptail --title "Atualização do Sistema" --gauge "O $DISTRO vai procurar agora por atualizações de pacotes Snap" 10 70 0
+	if [ "$(command -v snap)" ]; then
+		for ((i = 0; i < 100; i += 50)); do
+			echo "${i}"
+			sleep 1
+		done | whiptail --title "Atualização do Sistema" --gauge "O $DISTRO vai procurar agora por atualizações de pacotes Snap" 10 70 0
 
-	sudo snap refresh
+		sudo snap refresh
+	fi
 
 	whiptail --title "Atualização do Sistema" --msgbox "O $DISTRO terminou as atualizações" 10 70
 }
@@ -38,7 +49,10 @@ clean() {
 
 	sudo dnf autoremove
 	sudo dnf clean all
-	sudo flatpak uninstall --unused
+
+	if [ "$(command -v flatpak)" ]; then
+		sudo flatpak uninstall --unused
+	fi
 
 	whiptail --title "Limpeza do Sistema" --msgbox "Sistema Limpo" 10 70
 }
@@ -47,6 +61,7 @@ installApps() {
 	PACKAGE_MANAGER=$(whiptail --title "Escolha de Gestor de Pacotes" --menu "Qual dos seguintes gestores pretende utilizar?" 10 70 0 \
 		"DNF" "" \
 		"Flatpak" "" \
+		"Snap" "" \
 		3>&1 1>&2 2>&3)
 
 	APPS=$(whiptail --title "Aplicações a Instalar" --inputbox "Quais aplicações quer instalar?" 10 70 \
@@ -63,7 +78,19 @@ installApps() {
 			;;
 
 		"Flatpak")
-			sudo flatpak install "$APPS"
+			if [ "$(command -v flatpak)" ]; then
+				sudo flatpak install "$APPS"
+			else
+				whiptail --title "Erro" --msgbox "O ${PACKAGE_MANAGER} não está instalado no sistema!" 10 70
+			fi
+			;;
+
+		"Snap")
+			if [ "$(command -v flatpak)" ]; then
+				sudo snap install "$APPS"
+			else
+				whiptail --title "Erro" --msgbox "O ${PACKAGE_MANAGER} não está instalado no sistema!" 10 70
+			fi
 			;;
 		esac
 
