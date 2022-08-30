@@ -1,10 +1,10 @@
 #!/bin/bash
 
 #-------------+--------------------------------------------#
-# Script Name | maintaining_dialog.sh				       #
+# Script Name | maintaining_dialog.sh                      #
 #-------------+--------------------------------------------#
 # Purpose     | This script runs a set of commands related #
-#			  | to package managing and system information #
+#             | to package managing and system information #
 #-------------+--------------------------------------------#
 
 # Debug Mode
