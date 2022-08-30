@@ -12,7 +12,12 @@
 
 DISTRO="Fedora"
 
-update() {
+#----------+----------------------------------------#
+# Function | UPDATE                                 #
+#----------+----------------------------------------#
+# Purpose  | Update existing packages on the system #
+#----------+----------------------------------------#
+function UPDATE() {
     for ((i = 0; i < 100; i += 50)); do
         echo "${i}"
         sleep 1
@@ -41,7 +46,12 @@ update() {
     whiptail --title "Atualização do Sistema" --msgbox "O $DISTRO terminou as atualizações" 10 70
 }
 
-clean() {
+#----------+-------------------------#
+# Function | CLEAN                   #
+#----------+-------------------------#
+# Purpose  | Clean obsolete packages #
+#----------+-------------------------#
+function CLEAN() {
     for ((i = 0; i < 100; i += 95)); do
         echo "${i}"
         sleep 1
@@ -57,7 +67,12 @@ clean() {
     whiptail --title "Limpeza do Sistema" --msgbox "Sistema Limpo" 10 70
 }
 
-installApps() {
+#----------+---------------------------------------------------#
+# Function | INSTALLAPPS                                       #
+#----------+---------------------------------------------------#
+# Purpose  | Install a set of applications that the user wants #
+#----------+---------------------------------------------------#
+function INSTALLAPPS() {
     PACKAGE_MANAGER=$(whiptail --title "Escolha de Gestor de Pacotes" --menu "Qual dos seguintes gestores pretende utilizar?" 10 70 0 \
         "DNF" "" \
         "Flatpak" "" \
@@ -98,11 +113,21 @@ installApps() {
     fi
 }
 
-info() {
+#----------+-------------------------#
+# Function | INFO                    #
+#----------+-------------------------#
+# Purpose  | Show system information #
+#----------+-------------------------#
+function INFO() {
     cat /etc/os-release
 }
 
-turnOff() {
+#----------+-------------------#
+# Function | TURNOFF           #
+#----------+-------------------#
+# Purpose  | Turn computer off #
+#----------+-------------------#
+function TURNOFF() {
     if (whiptail --title "Desligar o Sistema" --yesno "Tem a certeza que pretende Desligar o Sistema?" 10 70); then
         for ((i = 0; i < 100; i += 97)); do
             echo "${i}"
@@ -113,7 +138,12 @@ turnOff() {
     fi
 }
 
-menu() {
+#----------+-----------------------#
+# Function | MENU                  #
+#----------+-----------------------#
+# Purpose  | Main menu for program #
+#----------+-----------------------#
+function MENU() {
     CHOICE=$(whiptail --title "Menu Principal" --menu "Escolha uma opção" 20 70 0 \
         "Atualizar o Sistema" "" \
         "Limpar o Sistema" "" \
@@ -124,25 +154,32 @@ menu() {
 
     case "${CHOICE}" in
     "Atualizar o Sistema")
-        update
+        UPDATE
         ;;
+
     "Limpar o Sistema")
-        clean
+        CLEAN
         ;;
+
     "Instalar Aplicações")
-        installApps
+        INSTALLAPPS
         ;;
+
     "Informações do Sistema")
-        info
+        INFO
         ;;
+
     "Desligar o Sistema")
-        turnOff
+        TURNOFF
         ;;
     esac
 }
 
+#--------------#
+# MAIN PROCESS #
+#--------------#
 if [[ $(whoami) == "root" ]]; then
-    menu
+    MENU
 else
     echo 'The script must be executed as root!'
     exit
