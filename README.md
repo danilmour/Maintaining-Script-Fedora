@@ -16,3 +16,7 @@ chmod +x maintaining.sh
 
 ## Dialog Script
 Recently, added the same script with a CLI Dialog, to make it more appealing. The steps to run it are the same as the ones above.
+
+```sh
+bash maintaining.sh
+```
