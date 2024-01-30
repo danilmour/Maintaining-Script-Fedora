@@ -1,0 +1,10 @@
+name: Verify Code
+on: [push]
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checout@v4
+      - name: Validate Code
+        uses: super-linter/super-linter@v5.7.2
