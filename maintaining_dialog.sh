@@ -23,7 +23,9 @@ function UPDATE() {
         sleep 1
     done | dialog --title "Atualização do Sistema" --gauge "O $DISTRO vai procurar agora por atualizações" 0 0 0
 
-    sudo dnf update
+    if ! sudo dnf update --refresh; then
+        dialog --title "Erro" --msgbox "Falha ao atualizar pacotes DNF" 0 0
+    fi
 
     if [ "$(command -v flatpak)" ]; then
         for ((i = 0; i < 100; i += 50)); do
@@ -31,7 +33,9 @@ function UPDATE() {
             sleep 1
         done | dialog --title "Atualização do Sistema" --gauge "O $DISTRO vai procurar agora por atualizações de pacotes Flatpak" 0 0 0
 
-        sudo flatpak update
+        if ! sudo flatpak update; then
+            dialog --title "Erro" --msgbox "Falha ao atualizar pacotes Flatpak" 0 0
+        fi
     fi
 
     if [ "$(command -v snap)" ]; then
@@ -40,7 +44,9 @@ function UPDATE() {
             sleep 1
         done | dialog --title "Atualização do Sistema" --gauge "O $DISTRO vai procurar agora por atualizações de pacotes Snap" 0 0 0
 
-        sudo snap refresh
+        if ! sudo snap refresh; then
+            dialog --title "Erro" --msgbox "Falha ao atualizar pacotes Snap" 0 0
+        fi
     fi
 
     dialog --title "Atualização do Sistema" --msgbox "O $DISTRO terminou as atualizações" 0 0
@@ -58,6 +64,7 @@ function CLEAN() {
     done | dialog --title "Limpeza do Sistema" --gauge "A começar a limpeza" 0 0 0
 
     sudo dnf autoremove
+    sudo dnf remove --oldinstallonly
     sudo dnf clean all
 
     if [ "$(command -v flatpak)" ]; then
@@ -88,20 +95,20 @@ function INSTALLAPPS() {
 
         case "${PACKAGE_MANAGER}" in
         "DNF")
-            sudo dnf install "$APPS"
+            sudo dnf install $APPS
             ;;
 
         "Flatpak")
             if [ "$(command -v flatpak)" ]; then
-                sudo flatpak install "$APPS"
+                sudo flatpak install $APPS
             else
                 dialog --title "Erro" --msgbox "O ${PACKAGE_MANAGER} não está instalado no sistema!" 0 0
             fi
             ;;
 
         "Snap")
-            if [ "$(command -v flatpak)" ]; then
-                sudo snap install "$APPS"
+            if [ "$(command -v snap)" ]; then
+                sudo snap install $APPS
             else
                 dialog --title "Erro" --msgbox "O ${PACKAGE_MANAGER} não está instalado no sistema!" 0 0
             fi
@@ -118,7 +125,10 @@ function INSTALLAPPS() {
 # Purpose  | Show system information #
 #----------+-------------------------#
 function INFO() {
-    dialog --msgbox "$(/etc/os-release)"
+    source /etc/os-release
+    dialog --title "Informações do Sistema" --msgbox "Distro: $NAME $VERSION
+Kernel: $(uname -r)
+Arch: $(uname -m)" 0 0
 }
 
 #----------+-------------------#
@@ -177,6 +187,11 @@ function MENU() {
 #--------------#
 # MAIN PROCESS #
 #--------------#
+if ! command -v dialog &>/dev/null; then
+    echo "dialog is required. Install it with: sudo dnf install dialog"
+    exit 1
+fi
+
 if [[ $(whoami) == "root" ]]; then
     MENU
 else
