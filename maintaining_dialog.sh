@@ -1,5 +1,4 @@
 #!/bin/bash
-# shellcheck disable=SC1091,SC2086
 
 #-------------+--------------------------------------------#
 # Script Name | maintaining_dialog.sh                      #
@@ -92,16 +91,17 @@ function INSTALLAPPS() {
     if [[ -z "${APPS}" ]]; then
         dialog --title "Aplicações a Instalar" --msgbox "Sem apps para instalar" 0 0
     else
+        IFS=' ' read -ra APP_LIST <<< "$APPS"
         dialog --title "Instalação" --msgbox "A instalar ${APPS} com o ${PACKAGE_MANAGER}" 0 0
 
         case "${PACKAGE_MANAGER}" in
         "DNF")
-            sudo dnf install $APPS
+            sudo dnf install "${APP_LIST[@]}"
             ;;
 
         "Flatpak")
             if [ "$(command -v flatpak)" ]; then
-                sudo flatpak install $APPS
+                sudo flatpak install "${APP_LIST[@]}"
             else
                 dialog --title "Erro" --msgbox "O ${PACKAGE_MANAGER} não está instalado no sistema!" 0 0
             fi
@@ -109,7 +109,7 @@ function INSTALLAPPS() {
 
         "Snap")
             if [ "$(command -v snap)" ]; then
-                sudo snap install $APPS
+                sudo snap install "${APP_LIST[@]}"
             else
                 dialog --title "Erro" --msgbox "O ${PACKAGE_MANAGER} não está instalado no sistema!" 0 0
             fi
@@ -126,8 +126,9 @@ function INSTALLAPPS() {
 # Purpose  | Show system information #
 #----------+-------------------------#
 function INFO() {
-    source /etc/os-release
-    dialog --title "Informações do Sistema" --msgbox "Distro: $NAME $VERSION
+    local pretty
+    pretty=$(awk -F= '/^PRETTY_NAME/{gsub(/"/,"",$2); print $2}' /etc/os-release 2>/dev/null)
+    dialog --title "Informações do Sistema" --msgbox "Distro: ${pretty:-Fedora}
 Kernel: $(uname -r)
 Arch: $(uname -m)" 0 0
 }
