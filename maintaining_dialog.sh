@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck disable=SC1091,SC2086
 
 #-------------+--------------------------------------------#
 # Script Name | maintaining_dialog.sh                      #
